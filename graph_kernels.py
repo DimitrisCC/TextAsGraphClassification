@@ -1,15 +1,13 @@
 from __future__ import print_function
-
 import copy
 from collections import defaultdict
-
 import networkx as nx
 import numpy as np
 from scipy.sparse.linalg import eigs
 
 
 def sp_kernel(g1, g2=None):
-    if g2 != None:
+    if g2 is not None:
         graphs = []
         for g in g1:
             graphs.append(g)
@@ -47,7 +45,7 @@ def sp_kernel(g1, g2=None):
         for label in sp_counts[i]:
             phi[i, all_paths[label]] = sp_counts[i][label]
 
-    if g2 != None:
+    if g2 is not None:
         K = np.dot(phi[:len(g1), :], phi[len(g1):, :].T)
     else:
         K = np.dot(phi, phi.T)
@@ -56,7 +54,7 @@ def sp_kernel(g1, g2=None):
 
 
 def graphlet_kernel(g1, g2=None):
-    if g2 != None:
+    if g2 is not None:
         graphs = []
         for g in g1:
             graphs.append(g)
@@ -94,7 +92,7 @@ def graphlet_kernel(g1, g2=None):
 
 # Compute Weisfeiler-Lehman subtree kernel
 def wl_kernel(g1, g2=None, h=6):
-    if g2 != None:
+    if g2 is not None:
         graphs = []
         for g in g1:
             graphs.append(g)
@@ -151,7 +149,7 @@ def wl_kernel(g1, g2=None, h=6):
                 if len(neighbors) > 0:
                     neighbors_label = tuple([labels[ind][node2index[neigh]] for neigh in neighbors])
                     node_label = str(node_label) + "-" + str(sorted(neighbors_label))
-                if not  node_label in label_lookup:
+                if not node_label in label_lookup:
                     label_lookup[node_label] = len(label_lookup)
 
                 compressed_labels[ind][node2index[node]] = label_lookup[node_label]
@@ -162,7 +160,7 @@ def wl_kernel(g1, g2=None, h=6):
         print("Number of compressed labels at iteration %s: %s" % (it, len(label_lookup)))
         labels = copy.deepcopy(compressed_labels)
 
-    if g2 != None:
+    if g2 is not None:
         K = np.zeros((len(g1), len(g2)))
         for it in range(-1, h):
             for i in range(len(g1)):
@@ -184,7 +182,7 @@ def wl_kernel(g1, g2=None, h=6):
 
 # Compute Pyramid Match kernel
 def pm_kernel(g1, g2=None, L=4, d=6):
-    if g2 != None:
+    if g2 is not None:
         graphs = []
         for g in g1:
             graphs.append(g)
@@ -211,7 +209,7 @@ def pm_kernel(g1, g2=None, L=4, d=6):
                 idx = Lambda.argsort()[::-1]
                 U = U[:, idx]
                 U = U[:, :d]
-            U = np.absolute(U);
+            U = np.absolute(U)
             Us.append(U)
 
     Hs = {}
@@ -224,11 +222,11 @@ def pm_kernel(g1, g2=None, L=4, d=6):
             T[np.where(T == l)] = l - 1
             for p in range(Us[i].shape[0]):
                 for q in range(Us[i].shape[1]):
-                    D[q, int(T[p, q])] = D[q, int(T[p, q])] + 1
+                    D[q, int(T[p, q])] += 1
 
             Hs[i].append(D)
 
-    if g2 != None:
+    if g2 is not None:
         K = np.zeros((len(g1), len(g2)))
         for i in range(len(g1)):
             for j in range(len(g2)):
@@ -239,7 +237,7 @@ def pm_kernel(g1, g2=None, L=4, d=6):
 
                 k = k + intersec[L - 1]
                 for p in range(L - 1):
-                    k = k + (1.0 / (2 ** (L - p - 1))) * (intersec[p] - intersec[p + 1])
+                    k += (1.0 / (2 ** (L - p - 1))) * (intersec[p] - intersec[p + 1])
 
                 K[i, j] = k
     else:
@@ -254,7 +252,7 @@ def pm_kernel(g1, g2=None, L=4, d=6):
 
                 k = k + intersec[L - 1]
                 for p in range(L - 1):
-                    k = k + (1.0 / (2 ** (L - p - 1))) * (intersec[p] - intersec[p + 1])
+                    k += (1.0 / (2 ** (L - p - 1))) * (intersec[p] - intersec[p + 1])
 
                 K[i, j] = k
                 K[j, i] = K[i, j]
