@@ -1,14 +1,12 @@
 from __future__ import print_function
 import timeit
 import time
-
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from tensorflow.contrib import learn
-
 from cnn_classifier import cnn_classifier
 from data_helpers import compute_nystroem
 
@@ -40,7 +38,7 @@ else:
     from graph_kernels import sp_kernel, graphlet_kernel, wl_kernel
 # Load data
 
-kernels = [wl_kernel,sp_kernel,graphlet_kernel]
+kernels = [wl_kernel, sp_kernel, graphlet_kernel]
 num_kernels = len(kernels)
 
 print("Computing feature maps...")
@@ -48,8 +46,8 @@ start = time.time()
 Q = []
 
 if FLAGS.use_nystroem:
-    Q, subgraphs, labels, shapes,time2 = compute_nystroem(FLAGS.data_file, FLAGS.use_node_labels, FLAGS.embedding_dim,
-                                                    FLAGS.community_detection, kernels)
+    Q, subgraphs, labels, shapes, time2 = compute_nystroem(FLAGS.data_file, FLAGS.use_node_labels, FLAGS.embedding_dim,
+                                                           FLAGS.community_detection, kernels)
 else:
     print("Not implemented!!!")
 
@@ -63,9 +61,9 @@ Q = M
 s = pd.Series(labels)
 y = pd.get_dummies(s).as_matrix()
 end = time.time()
-dur=end - start-time2
+dur = end - start - time2
 print(dur)
-exit(0)
+
 # Build vocabulary
 max_document_length = max([len(x.split(" ")) for x in subgraphs])
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
@@ -76,8 +74,7 @@ np.random.seed(None)
 
 kf = KFold(n_splits=10)
 kf.shuffle = True
-accs = [];
-
+accs = []
 
 for train_index, test_index in kf.split(x):
     x_train, x_test = x[train_index], x[test_index]

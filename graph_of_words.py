@@ -1,7 +1,7 @@
 import itertools
 
 
-def terms_to_graph(terms, w):  #terms=list w=window size
+def terms_to_graph(terms, w):  # terms=list w=window size
 
     from_to = {}
 
@@ -14,8 +14,8 @@ def terms_to_graph(terms, w):  #terms=list w=window size
     for i in range(len(indexes)):
         new_edges.append(" ".join(list(terms_temp[i] for i in indexes[i])))
 
-    for i in range(0,len(new_edges)):
-        from_to[new_edges[i].split()[0],new_edges[i].split()[1]] = 1
+    for i in range(0, len(new_edges)):
+        from_to[new_edges[i].split()[0], new_edges[i].split()[1]] = 1
 
     # then iterate over the remaining terms
     for i in range(w, len(terms)):
