@@ -32,7 +32,7 @@ class cnn_classifier(BaseEstimator, ClassifierMixin):
         self.FLAGS._parse_flags()
 
         session_conf = tf.ConfigProto(
-            device_count={'GPU': 1},
+            device_count={'GPU': 0},
             allow_soft_placement=self.FLAGS.allow_soft_placement,
             log_device_placement=self.FLAGS.log_device_placement)
         self.sess = tf.Session(config=session_conf)
