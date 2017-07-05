@@ -78,7 +78,7 @@ accs = []
 
 for train_index, test_index in kf.split(x):
     x_train, x_test = x[train_index], x[test_index]
-    y_train, y_test = y[train_index], y[test_index]
+    y_train, y_test = y[train_index], y[test_index]  # to check error out of bounds
     clf = cnn_classifier(sequence_length=x_train.shape[1], num_classes=y_train.shape[1],
                          vocab_size=len(vocab_processor.vocabulary_), num_kernels=num_kernels, Q=Q, FLAGS=FLAGS)
     clf.fit(x_train, y_train)
