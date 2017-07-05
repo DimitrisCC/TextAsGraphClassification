@@ -3,6 +3,8 @@ import re
 from sklearn import preprocessing
 import os
 import numpy as np
+import networkx as nx
+from nltk.corpus import stopwords
 import pprintpp as pp
 
 
@@ -10,7 +12,7 @@ def extract_terms(file_location, stopwords=None):
     with open(file_location, 'r') as doc:
         terms = re.compile('\w+').findall(doc.read().lower().replace('\n', ''))
         if stopwords is not None:
-            terms = filter(lambda x: x not in stopwords, terms)
+            terms = [t for t in terms if t not in stopwords]
         return terms
 
 
@@ -64,6 +66,29 @@ def terms_to_graph(terms, w):  # terms=list w=window size
     return from_to
 
 
+def graph_to_networkx(graph, name=None):
+    G = nx.Graph()
+    G.name = name
+    for edge, weight in graph.items():
+        G.add_edge(*edge, weight=weight)
+    return G
+
+
+def docs_to_networkx(dataset, cats, window_size=2):
+    ds = './datasets/%s/' % dataset
+    Gs = []
+    labels = []
+    for cat in cats.keys():
+        for doc in os.listdir(ds + cat):
+            terms = extract_terms(ds + cat + '/' + doc, stopwords.words('english'))
+            graph = terms_to_graph(terms, window_size)
+            G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
+            Gs.append(G)
+            labels.append(cats[cat])
+    return Gs, labels
+
+
+# needs fix
 def produce_graph_files(dataset, cats):
     def get_text_to_write(arr):
         to_write = ""
@@ -155,5 +180,5 @@ if __name__ == "__main__":
         'tennis': 5
     }
 
-    produce_graph_files('bbcsport', scats)
-    produce_graph_files('bbc', cats)
+    # produce_graph_files('bbcsport', scats)
+    # produce_graph_files('bbc', cats)

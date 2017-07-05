@@ -8,45 +8,69 @@ import numpy as np
 import sys, pickle, logging
 import copy, time
 from nystroem import Nystroem
+import graph_of_words as gow
 
 np.random.seed(None)
 
 
-def load_data(ds_name, use_node_labels):
-    node2graph = {}
+def load_data(ds_name, use_node_labels, data_type='text'):
     Gs = []
+    labels = []
+    cats = {}
 
-    ds_name_ = ds_name.split('/')[0]
+    if data_type == 'text':
+        # encodings
+        if ds_name == 'bbc':
+            cats = {
+                'business': 1,
+                'entertainment': 2,
+                'politics': 3,
+                'sport': 4,
+                'tech': 5
+            }
+        elif ds_name == 'bbcsport':
+            cats = {
+                'athletics': 1,
+                'cricket': 2,
+                'football': 3,
+                'rugby': 4,
+                'tennis': 5
+            }
 
-    with open("./datasets/%s/%s_graph_indicator.txt" % (ds_name, ds_name_), "r") as f:
-        c = 1
-        for line in f:
-            node2graph[c] = int(line[:-1])
-            if not node2graph[c] == len(Gs):
-                Gs.append(nx.Graph())
-            Gs[-1].add_node(c)
-            c += 1
+        Gs, labels = gow.docs_to_networkx(ds_name, cats)
 
-    with open("./datasets/%s/%s_A.txt" % (ds_name, ds_name_), "r") as f:
-        for line in f:
-            edge = line[:-1].split(",")
-            edge[1] = edge[1].replace(" ", "")
-            Gs[node2graph[int(edge[0])] - 1].add_edge(int(edge[0]), int(edge[1]))
+    else:
+        node2graph = {}
+        ds_name_ = ds_name.split('/')[0]
 
-    if use_node_labels:
-        with open("./datasets/%s/%s_node_labels.txt" % (ds_name, ds_name_), "r") as f:
+        with open("./datasets/%s/%s_graph_indicator.txt" % (ds_name, ds_name_), "r") as f:
             c = 1
             for line in f:
-                node_label = int(line[:-1])
-                Gs[node2graph[c] - 1].node[c]['label'] = node_label
+                node2graph[c] = int(line[:-1])
+                if not node2graph[c] == len(Gs):
+                    Gs.append(nx.Graph())
+                Gs[-1].add_node(c)
                 c += 1
 
-    labels = []
-    with open("./datasets/%s/%s_graph_labels.txt" % (ds_name, ds_name_), "r") as f:
-        for line in f:
-            if line is None or line[:-1] == '':
-                continue
-            labels.append(int(line[:-1]))
+        with open("./datasets/%s/%s_A.txt" % (ds_name, ds_name_), "r") as f:
+            for line in f:
+                edge = line[:-1].split(",")
+                edge[1] = edge[1].replace(" ", "")
+                Gs[node2graph[int(edge[0])] - 1].add_edge(int(edge[0]), int(edge[1]))
+
+        if use_node_labels:
+            with open("./datasets/%s/%s_node_labels.txt" % (ds_name, ds_name_), "r") as f:
+                c = 1
+                for line in f:
+                    node_label = int(line[:-1])
+                    Gs[node2graph[c] - 1].node[c]['label'] = node_label
+                    c += 1
+
+        with open("./datasets/%s/%s_graph_labels.txt" % (ds_name, ds_name_), "r") as f:
+            for line in f:
+                if line is None or line[:-1] == '':
+                    continue
+                labels.append(int(line[:-1]))
 
     labels = np.array(labels, dtype=np.float)
     return Gs, labels
