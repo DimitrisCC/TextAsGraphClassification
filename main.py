@@ -11,7 +11,7 @@ from cnn_classifier import cnn_classifier
 from data_helpers import compute_nystroem
 
 tf.flags.DEFINE_string("data_file", "bbcsport", "Data source.")
-tf.flags.DEFINE_string("community_detection", "louvain", "Employed community detection algorithm (default: louvain)")
+tf.flags.DEFINE_string("community_detection", "walktrap", "Employed community detection algorithm (default: louvain)")
 tf.flags.DEFINE_boolean("use_nystroem", True, "Use Nystrom method approximate feature map")
 tf.flags.DEFINE_boolean("use_node_labels", False, "Take labels of nodes into account")
 
@@ -78,7 +78,7 @@ accs = []
 
 for train_index, test_index in kf.split(x):
     x_train, x_test = x[train_index], x[test_index]
-    y_train, y_test = y[train_index], y[test_index]  # to check error out of bounds
+    y_train, y_test = y[train_index], y[test_index]
     clf = cnn_classifier(sequence_length=x_train.shape[1], num_classes=y_train.shape[1],
                          vocab_size=len(vocab_processor.vocabulary_), num_kernels=num_kernels, Q=Q, FLAGS=FLAGS)
     clf.fit(x_train, y_train)

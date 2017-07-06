@@ -5,14 +5,21 @@ import os
 import numpy as np
 import networkx as nx
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 import pprintpp as pp
 
 
-def extract_terms(file_location, stopwords=None):
+def extract_terms(file_location, stopwords=None, lemmatize=None, stem=None):
     with open(file_location, 'r') as doc:
         terms = re.compile('\w+').findall(doc.read().lower().replace('\n', ''))
         if stopwords is not None:
             terms = [t for t in terms if t not in stopwords]
+        if lemmatize is not None:
+            lem = WordNetLemmatizer()
+            terms = [lem.lemmatize(t) for t in terms]
+        if stem is not None:
+            stem = PorterStemmer()
+            terms = [stem.stem(t) for t in terms]
         return terms
 
 
@@ -80,7 +87,10 @@ def docs_to_networkx(dataset, cats, window_size=2):
     labels = []
     for cat in cats.keys():
         for doc in os.listdir(ds + cat):
-            terms = extract_terms(ds + cat + '/' + doc, stopwords.words('english'))
+            terms = extract_terms(ds + cat + '/' + doc,
+                                  stopwords=stopwords.words('english'),
+                                  lemmatize=True,
+                                  stem=True)
             graph = terms_to_graph(terms, window_size)
             G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
             Gs.append(G)

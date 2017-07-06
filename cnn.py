@@ -9,10 +9,10 @@ class CNN(object):
     A CNN for graph classification.
     Uses an embedding layer, followed by a convolutional, max-pooling and multi-layer perceptron.
     """
-    def __init__(
-      self, input_phi, sequence_length, num_classes, vocab_size,
-      embedding_size, filter_sizes, num_filters, num_kernels, l2_reg_lambda=0.0):
 
+    def __init__(
+            self, input_phi, sequence_length, num_classes, vocab_size,
+            embedding_size, filter_sizes, num_filters, num_kernels, l2_reg_lambda=0.0):
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, num_classes], name="input_y")
@@ -27,9 +27,9 @@ class CNN(object):
 
         # Create a convolution + maxpool layer for each filter size
         pooled_outputs = []
-        #for kernel in range(num_kernels):
-        #x = tf.slice(self.embedded_chars, [0, 0, 0, kernel], [-1, -1, -1, 1])
-        #self.embedded_chars_expanded = x
+        # for kernel in range(num_kernels):
+        # x = tf.slice(self.embedded_chars, [0, 0, 0, kernel], [-1, -1, -1, 1])
+        # self.embedded_chars_expanded = x
         for i, filter_size in enumerate(filter_sizes):
             with tf.name_scope("conv-maxpool-%s" % filter_size):
                 # Convolution Layer
@@ -47,7 +47,7 @@ class CNN(object):
                 # Maxpooling over the outputs
                 pooled = tf.nn.max_pool(
                     h,
-                    ksize=[1, sequence_length - filter_size + 1, 1,1],
+                    ksize=[1, sequence_length - filter_size + 1, 1, 1],
                     strides=[1, 1, 1, 1],
                     padding='VALID',
                     name="pool")
@@ -55,7 +55,7 @@ class CNN(object):
 
         # Combine all the pooled features
         num_filters_total = num_filters * len(filter_sizes)
-        #self.h_pool = tf.concat(pooled_outputs, 3)
+        # self.h_pool = tf.concat(pooled_outputs, 3)
         self.h_pool = tf.concat(pooled_outputs, 1)
         self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
 
@@ -69,12 +69,12 @@ class CNN(object):
             l2_loss += tf.nn.l2_loss(W1)
             l2_loss += tf.nn.l2_loss(b1)
             self.h_fc1 = tf.nn.relu(tf.matmul(self.h_pool_flat, W1) + b1)
-            
+
         # Add dropout
         with tf.name_scope("dropout"):
             self.h_drop = tf.nn.dropout(self.h_fc1, self.dropout_keep_prob)
-            
-       	# Final (unnormalized) scores and predictions
+
+        # Final (unnormalized) scores and predictions
         with tf.name_scope("output"):
             W2 = tf.get_variable(
                 "W2",
