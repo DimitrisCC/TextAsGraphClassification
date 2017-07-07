@@ -141,7 +141,7 @@ def wl_kernel(g1, g2=None, h=6):
 
         for node in G.nodes():
             label = G.node[node]['label']
-            if not label in label_lookup:
+            if label not in label_lookup:
                 label_lookup[label] = len(label_lookup)
 
             labels[ind][node2index[node]] = label_lookup[label]

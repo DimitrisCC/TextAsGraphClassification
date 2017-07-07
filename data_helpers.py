@@ -84,9 +84,19 @@ def networkx_to_igraph(G):
     return G_ig, reverse_mapping
 
 
+def neighbors_community(G):
+    communities = []
+    for v in G.nodes():
+        communities.append(G.neighbors(v))
+    return communities
+
+
 def community_detection(G_networkx, community_detection_method):
     G, reverse_mapping = networkx_to_igraph(G_networkx)
 
+    if community_detection_method == "neighbors":
+        communities = neighbors_community(G_networkx)
+        return communities
     if community_detection_method == "eigenvector":
         c = G.community_leading_eigenvector()
     elif community_detection_method == "infomap":

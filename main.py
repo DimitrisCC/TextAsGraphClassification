@@ -13,7 +13,7 @@ from data_helpers import compute_nystroem
 tf.flags.DEFINE_string("data_file", "subjectivity", "Data source.")
 tf.flags.DEFINE_string("community_detection", "infomap", "Employed community detection algorithm (default: louvain)")
 tf.flags.DEFINE_boolean("use_nystroem", True, "Use Nystrom method approximate feature map")
-tf.flags.DEFINE_boolean("use_node_labels", False, "Take labels of nodes into account")
+tf.flags.DEFINE_boolean("use_node_labels", True, "Take labels of nodes into account")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 100, "Dimensionality of character embedding (default: 128)")
