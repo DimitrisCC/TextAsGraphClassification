@@ -94,6 +94,7 @@ def docs_to_networkx(dataset, cats, window_size=2):
     ds = './datasets/%s/' % dataset
     Gs = []
     labels = []
+    type_ = 2
 
     for doc in os.listdir(ds):
         if 'train.txt' in doc:

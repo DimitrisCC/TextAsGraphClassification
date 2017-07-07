@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="33ec653a-069f-4181-8df0-96fe6b80a81f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/datasets/subjectivity/test.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/datasets/subjectivity/train.txt" />
+    <list default="true" id="33ec653a-069f-4181-8df0-96fe6b80a81f" name="Default" comment="second type of dataset loading">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_helpers.py" afterPath="$PROJECT_DIR$/data_helpers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/graph_kernels.py" afterPath="$PROJECT_DIR$/graph_kernels.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/graph_of_words.py" afterPath="$PROJECT_DIR$/graph_of_words.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main_grid_search.py" afterPath="$PROJECT_DIR$/main_grid_search.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -116,8 +110,8 @@
       <file leaf-file-name="graph_of_words.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/graph_of_words.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="110" column="62" lean-forward="true" selection-start-line="110" selection-start-column="62" selection-end-line="110" selection-end-column="62" />
+            <state relative-caret-position="163">
+              <caret line="99" column="30" lean-forward="true" selection-start-line="99" selection-start-column="30" selection-end-line="99" selection-end-column="30" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -759,7 +753,14 @@
       <option name="project" value="LOCAL" />
       <updated>1499299818241</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="second type of dataset loading">
+      <created>1499426226469</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1499426226469</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -768,7 +769,7 @@
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36231884" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36231884" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -833,7 +834,8 @@
     <MESSAGE value="text to graph dataset conversion - untested" />
     <MESSAGE value="acc = 35.5% - direct text2graph" />
     <MESSAGE value="Added stopwords, lemmatization, stemming --some improvements" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added stopwords, lemmatization, stemming --some improvements" />
+    <MESSAGE value="second type of dataset loading" />
+    <option name="LAST_COMMIT_MESSAGE" value="second type of dataset loading" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1240,8 +1242,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/graph_of_words.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="110" column="62" lean-forward="true" selection-start-line="110" selection-start-column="62" selection-end-line="110" selection-end-column="62" />
+        <state relative-caret-position="163">
+          <caret line="99" column="30" lean-forward="true" selection-start-line="99" selection-start-column="30" selection-end-line="99" selection-end-column="30" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
