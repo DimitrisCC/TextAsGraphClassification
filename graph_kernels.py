@@ -82,7 +82,7 @@ def graphlet_kernel(g1, g2=None):
 
         ind += 1
 
-    if g2 != None:
+    if g2 is not None:
         K = np.dot(phi[:len(g1), :], phi[len(g1):, :].T)
     else:
         K = np.dot(phi, phi.T)
@@ -123,7 +123,7 @@ def wl_kernel(g1, g2=None, h=6):
 
         for node in G.nodes():
             label = G.node[node]['label']
-            if not label in label_lookup:
+            if label not in label_lookup:
                 label_lookup[label] = len(label_lookup)
 
             labels[ind][node2index[node]] = label_lookup[label]
@@ -149,7 +149,7 @@ def wl_kernel(g1, g2=None, h=6):
                 if len(neighbors) > 0:
                     neighbors_label = tuple([labels[ind][node2index[neigh]] for neigh in neighbors])
                     node_label = str(node_label) + "-" + str(sorted(neighbors_label))
-                if not node_label in label_lookup:
+                if node_label not in label_lookup:
                     label_lookup[node_label] = len(label_lookup)
 
                 compressed_labels[ind][node2index[node]] = label_lookup[node_label]

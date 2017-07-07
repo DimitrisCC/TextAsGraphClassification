@@ -101,6 +101,10 @@ def community_detection(G_networkx, community_detection_method):
         c = G.community_spinglass()
     elif community_detection_method == "walktrap":
         c = G.community_walktrap().as_clustering()
+    elif community_detection_method == 'multilevel':
+        c = G.community_multilevel()
+    elif community_detection_method == 'edge_betweenness':
+        c = G.community_edge_betweenness().as_clustering()
     else:
         c = []
 

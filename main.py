@@ -10,8 +10,8 @@ from tensorflow.contrib import learn
 from cnn_classifier import cnn_classifier
 from data_helpers import compute_nystroem
 
-tf.flags.DEFINE_string("data_file", "bbcsport", "Data source.")
-tf.flags.DEFINE_string("community_detection", "walktrap", "Employed community detection algorithm (default: louvain)")
+tf.flags.DEFINE_string("data_file", "subjectivity", "Data source.")
+tf.flags.DEFINE_string("community_detection", "infomap", "Employed community detection algorithm (default: louvain)")
 tf.flags.DEFINE_boolean("use_nystroem", True, "Use Nystrom method approximate feature map")
 tf.flags.DEFINE_boolean("use_node_labels", False, "Take labels of nodes into account")
 

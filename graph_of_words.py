@@ -9,18 +9,27 @@ from nltk.stem import PorterStemmer, WordNetLemmatizer
 import pprintpp as pp
 
 
-def extract_terms(file_location, stopwords=None, lemmatize=None, stem=None):
+def clean_terms(terms, stopwords=None, lemmatize=None, stem=None):
+    if stopwords is not None:
+        terms = [t for t in terms if t not in stopwords]
+    if lemmatize is not None:
+        lem = WordNetLemmatizer()
+        terms = [lem.lemmatize(t) for t in terms]
+    if stem is not None:
+        stem = PorterStemmer()
+        terms = [stem.stem(t) for t in terms]
+    return terms
+
+
+def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=None):
     with open(file_location, 'r') as doc:
         terms = re.compile('\w+').findall(doc.read().lower().replace('\n', ''))
-        if stopwords is not None:
-            terms = [t for t in terms if t not in stopwords]
-        if lemmatize is not None:
-            lem = WordNetLemmatizer()
-            terms = [lem.lemmatize(t) for t in terms]
-        if stem is not None:
-            stem = PorterStemmer()
-            terms = [stem.stem(t) for t in terms]
-        return terms
+        return clean_terms(terms, stopwords, lemmatize, stem)
+
+
+def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None):
+    terms = re.compile('\w+').findall(sentence.lower().replace('\n', ''))
+    return clean_terms(terms, stopwords, lemmatize, stem)
 
 
 def terms_to_graph(terms, w):  # terms=list w=window size
@@ -85,20 +94,40 @@ def docs_to_networkx(dataset, cats, window_size=2):
     ds = './datasets/%s/' % dataset
     Gs = []
     labels = []
-    for cat in cats.keys():
-        for doc in os.listdir(ds + cat):
-            terms = extract_terms(ds + cat + '/' + doc,
-                                  stopwords=stopwords.words('english'),
-                                  lemmatize=True,
-                                  stem=True)
-            graph = terms_to_graph(terms, window_size)
-            G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
-            Gs.append(G)
-            labels.append(cats[cat])
+
+    for doc in os.listdir(ds):
+        if 'train.txt' in doc:
+            type_ = 1
+
+    if type_ == 1:
+        with open(ds + '/train.txt') as doc:
+            dc = 1
+            for line in doc:
+                label = line[0]
+                labels.append(label)
+                terms = extract_terms_from_sentence(line[1:],
+                                                    stopwords=stopwords.words('english'),
+                                                    lemmatize=True,
+                                                    stem=True)
+                graph = terms_to_graph(terms, window_size)
+                G = graph_to_networkx(graph, name=label + '_' + str(dc))
+                Gs.append(G)
+                dc += 1
+    else:
+        for cat in cats.keys():
+            for doc in os.listdir(ds + cat):
+                terms = extract_terms_from_file(ds + cat + '/' + doc,
+                                                stopwords=stopwords.words('english'),
+                                                lemmatize=True,
+                                                stem=True)
+                graph = terms_to_graph(terms, window_size)
+                G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
+                Gs.append(G)
+                labels.append(cats[cat])
     return Gs, labels
 
 
-# needs fix
+# needs fix or discard
 def produce_graph_files(dataset, cats):
     def get_text_to_write(arr):
         to_write = ""
@@ -123,7 +152,7 @@ def produce_graph_files(dataset, cats):
     gid = 1  # graph indicator
     for cat in cats.keys():
         for doc in os.listdir(ds + cat):
-            terms = extract_terms(ds + cat + '/' + doc)
+            terms = extract_terms_from_file(ds + cat + '/' + doc)
             graph = terms_to_graph(terms, 2)
 
             termlist = [[*x] for x in graph.keys()]
