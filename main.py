@@ -33,12 +33,12 @@ tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on 
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
 if FLAGS.use_node_labels:
-    from graph_kernels_labeled import sp_kernel, graphlet_kernel, wl_kernel
+    from graph_kernels_labeled import sp_kernel, wl_kernel, graphlet_kernel
 else:
-    from graph_kernels import sp_kernel, graphlet_kernel, wl_kernel
+    from graph_kernels import sp_kernel, wl_kernel, graphlet_kernel
 # Load data
 
-kernels = [wl_kernel, sp_kernel, graphlet_kernel]
+kernels = [wl_kernel, sp_kernel]  # , graphlet_kernel]
 num_kernels = len(kernels)
 
 print("Computing feature maps...")

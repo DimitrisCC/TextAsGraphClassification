@@ -101,7 +101,7 @@ def docs_to_networkx(dataset, cats, window_size=2):
             type_ = 1
 
     if type_ == 1:
-        with open(ds + '/train.txt') as doc:
+        with open(ds + '/test.txt') as doc:
             dc = 1
             for line in doc:
                 label = line[0]
@@ -112,7 +112,8 @@ def docs_to_networkx(dataset, cats, window_size=2):
                                                     stem=True)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=label + '_' + str(dc))
-                G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
+                # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
+                nx.set_node_attributes(G, 'label', dict(zip(G.nodes(), G.nodes())))
                 Gs.append(G)
                 dc += 1
     else:
@@ -124,7 +125,8 @@ def docs_to_networkx(dataset, cats, window_size=2):
                                                 stem=True)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
-                G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
+                # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
+                nx.set_node_attributes(G, 'label', dict(zip(G.nodes(), G.nodes())))
                 Gs.append(G)
                 labels.append(cats[cat])
     return Gs, labels
