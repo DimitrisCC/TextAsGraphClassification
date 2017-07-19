@@ -10,8 +10,8 @@ from tensorflow.contrib import learn
 from cnn_classifier import cnn_classifier
 from data_helpers import compute_nystroem
 
-tf.flags.DEFINE_string("data_file", "subjectivity", "Data source.")
-tf.flags.DEFINE_string("community_detection", "infomap", "Employed community detection algorithm (default: louvain)")
+tf.flags.DEFINE_string("data_file", "bbcsport", "Data source.")
+tf.flags.DEFINE_string("community_detection", "neighbors", "Employed community detection algorithm (default: louvain)")
 tf.flags.DEFINE_boolean("use_nystroem", True, "Use Nystrom method approximate feature map")
 tf.flags.DEFINE_boolean("use_node_labels", True, "Take labels of nodes into account")
 
@@ -38,7 +38,7 @@ else:
     from graph_kernels import sp_kernel, wl_kernel, graphlet_kernel
 # Load data
 
-kernels = [wl_kernel, sp_kernel]  # , graphlet_kernel]
+kernels = [wl_kernel]  # , sp_kernel]  # , graphlet_kernel]
 num_kernels = len(kernels)
 
 print("Computing feature maps...")
@@ -87,7 +87,7 @@ for train_index, test_index in kf.split(x):
     accs.append(acc)
     clf.clear_graph()
 
-    print(acc)
+    print('Accuracy: %f' % acc)
     end = time.time()
-    print(end - start)
+    print('Time passed: %f' % (end - start))
 print("Average accuracy: ", np.mean(accs))

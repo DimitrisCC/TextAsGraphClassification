@@ -22,13 +22,20 @@ def clean_terms(terms, stopwords=None, lemmatize=None, stem=None):
 
 
 def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=None):
-    with open(file_location, 'r') as doc:
-        terms = re.compile('\w+').findall(doc.read().lower().replace('\n', ''))
+    with open(file_location, 'r', encoding='iso-8859-1') as doc:
+        terms = []
+        for line in doc:
+            terms.extend(re.compile('\w+').findall(line.lower()))
+
+        # terms = re.compile('\w+').findall(doc
+        #                                   .read()
+        #                                   .replace('\n', '')
+        #                                   .lower())
         return clean_terms(terms, stopwords, lemmatize, stem)
 
 
 def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None):
-    terms = re.compile('\w+').findall(sentence.lower().replace('\n', ''))
+    terms = re.compile('\w+').findall(sentence.lower())
     return clean_terms(terms, stopwords, lemmatize, stem)
 
 
@@ -101,7 +108,7 @@ def docs_to_networkx(dataset, cats, window_size=2):
             type_ = 1
 
     if type_ == 1:
-        with open(ds + '/test.txt') as doc:
+        with open(ds + '/train.txt', 'r', encoding='iso-8859-1') as doc:
             dc = 1
             for line in doc:
                 label = line[0]
