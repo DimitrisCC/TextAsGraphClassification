@@ -11,7 +11,7 @@ from cnn_classifier import cnn_classifier
 from data_helpers import compute_nystroem
 
 tf.flags.DEFINE_string("data_file", "bbcsport", "Data source.")
-tf.flags.DEFINE_string("community_detection", "neighbors", "Employed community detection algorithm (default: louvain)")
+tf.flags.DEFINE_string("community_detection", "neighbors2", "Employed community detection algorithm (default: louvain)")
 tf.flags.DEFINE_boolean("use_nystroem", True, "Use Nystrom method approximate feature map")
 tf.flags.DEFINE_boolean("use_node_labels", True, "Take labels of nodes into account")
 
@@ -24,7 +24,7 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("num_epochs", 300, "Number of training epochs (default: 200)")
 
 # Misc Parameters
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
@@ -38,7 +38,7 @@ else:
     from graph_kernels import sp_kernel, wl_kernel, graphlet_kernel
 # Load data
 
-kernels = [wl_kernel]  # , sp_kernel]  # , graphlet_kernel]
+kernels = [wl_kernel, sp_kernel]  # graphlet_kernel
 num_kernels = len(kernels)
 
 print("Computing feature maps...")
@@ -72,7 +72,7 @@ x = np.array(list(vocab_processor.fit_transform(subgraphs)))
 # Randomly shuffle data
 np.random.seed(None)
 
-kf = KFold(n_splits=10)
+kf = KFold(n_splits=5)
 kf.shuffle = True
 accs = []
 

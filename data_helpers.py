@@ -91,11 +91,25 @@ def neighbors_community(G):
     return communities
 
 
+def neighbors2_community(G):
+    communities = []
+    for v in G.nodes():
+        neighs = G.neighbors(v)
+        communities.append(v)
+        for n in neighs:
+            communities.append(n)
+
+    return communities
+
+
 def community_detection(G_networkx, community_detection_method):
     G, reverse_mapping = networkx_to_igraph(G_networkx)
 
     if community_detection_method == "neighbors":
         communities = neighbors_community(G_networkx)
+        return communities
+    if community_detection_method == "neighbors2":
+        communities = neighbors2_community(G_networkx)
         return communities
     if community_detection_method == "eigenvector":
         c = G.community_leading_eigenvector()
