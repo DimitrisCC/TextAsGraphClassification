@@ -4,6 +4,7 @@ import warnings
 
 import numpy as np
 from scipy.linalg import svd
+from scipy.sparse.linalg import svds
 from sklearn.utils import check_random_state
 
 
@@ -38,7 +39,8 @@ class Nystroem():
         basis_kernel = self.kernel(basis, basis, **self._get_kernel_params())
 
         # sqrt of kernel matrix on basis vectors
-        U, S, V = svd(basis_kernel)
+        # U, S, V = svd(basis_kernel)
+        U, S, V = svds(basis_kernel, k=min(basis_kernel.shape) - 1)
         S = np.maximum(S, 1e-12)
         self.normalization_ = np.dot(U * 1. / np.sqrt(S), V)
         self.components_ = basis
