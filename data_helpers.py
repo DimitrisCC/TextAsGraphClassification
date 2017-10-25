@@ -87,21 +87,24 @@ def networkx_to_igraph(G):
 def neighbors_community(G):
     communities = []
     for v in G.nodes():
-        communities.append(G.neighbors(v).append(v))
+        community = G.neighbors(v)
+        community.append(v)
+        communities.append(community)
     return communities
 
 
-def neighbors2_community(G, remove_duplicates=False):
+def neighbors2_community(G, remove_duplicates=True):
     communities = set()
     for v in G.nodes():
         neighs = G.neighbors(v)
+        community = []
         for n in neighs:
-            community = [n]
+            community.append(n)
             neighs2 = G.neighbors(n)
             community.extend(neighs2)
-            if remove_duplicates:
-                community = list(set(community))
-            communities.add(tuple(community))
+        if remove_duplicates:
+            community = list(set(community))
+        communities.add(tuple(community))
 
     communities = list(map(list, communities))  # Convert tuples back into lists
     return communities
