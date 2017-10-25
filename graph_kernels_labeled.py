@@ -47,7 +47,7 @@ def sp_kernel(g1, g2=None):
                         if label not in all_paths:
                             all_paths[label] = len(all_paths)
 
-        phi = np.zeros((N, len(all_paths)))
+        phi = lil_matrix((N, len(all_paths)))
 
         for i in range(N):
             for label in sp_counts[i]:
@@ -58,7 +58,7 @@ def sp_kernel(g1, g2=None):
         else:
             K = np.dot(phi, phi.T)
 
-    return K
+    return K.todense()
 
 
 def graphlet_kernel(g1, g2=None):
@@ -109,14 +109,17 @@ def graphlet_kernel(g1, g2=None):
 
             ind += 1
 
-        phid = phi.todense()
+        # phid = phi.todense()
 
         if g2 is not None:
-            K = np.dot(phid[:len(g1), :], phid[len(g1):, :].T)
+            phi1 = phi[:len(g1), :]
+            phi2 = phi[len(g1):, :]
+            phi2 = phi2.T
+            K = np.dot(phi1, phi2)
         else:
-            K = np.dot(phid, phid.T)
+            K = np.dot(phi, phi.T)
 
-        K = np.asarray(K)
+            # K = np.asarray(K)
     return K
 
 

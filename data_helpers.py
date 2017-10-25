@@ -209,7 +209,7 @@ def compute_nystroem(ds_name, use_node_labels, embedding_dim, community_detectio
     for idx, k in enumerate(kernels):
         model = Nystroem(k, n_components=embedding_dim)
         model.fit(communities)
-        print(len(communities))
+        print(str(len(communities)) + " communities")
         Q_t = model.transform(communities)
         Q_t = np.vstack([np.zeros(embedding_dim), Q_t])
         Q.append(Q_t)
