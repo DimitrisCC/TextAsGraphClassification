@@ -4,14 +4,20 @@ from sklearn import preprocessing
 import os
 import numpy as np
 import networkx as nx
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 import pprintpp as pp
 
+tags = ['NN', 'NNP', 'NNS', 'NNPS', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
 
-def clean_terms(terms, stopwords=None, lemmatize=None, stem=None):
+
+def clean_terms(terms, stopwords=None, lemmatize=None, stem=None, only_N_V=None):
     if stopwords is not None:
         terms = [t for t in terms if t not in stopwords]
+    if only_N_V is not None:  # include only nouns and verbs
+        tagged = nltk.pos_tag(terms)
+        terms = [t for t, pos in tagged if pos in tags]
     if lemmatize is not None:
         lem = WordNetLemmatizer()
         terms = [lem.lemmatize(t) for t in terms]
@@ -21,7 +27,7 @@ def clean_terms(terms, stopwords=None, lemmatize=None, stem=None):
     return terms
 
 
-def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=None):
+def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=None, only_N_V=None):
     with open(file_location, 'r', encoding='iso-8859-1') as doc:
         terms = []
         for line in doc:
@@ -31,12 +37,12 @@ def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=
         #                                   .read()
         #                                   .replace('\n', '')
         #                                   .lower())
-        return clean_terms(terms, stopwords, lemmatize, stem)
+        return clean_terms(terms, stopwords, lemmatize, stem, only_N_V)
 
 
-def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None):
+def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None, only_N_V=None):
     terms = re.compile('\w+').findall(sentence.lower())
-    return clean_terms(terms, stopwords, lemmatize, stem)
+    return clean_terms(terms, stopwords, lemmatize, stem, only_N_V)
 
 
 def terms_to_graph(terms, w):  # terms=list w=window size
@@ -116,7 +122,8 @@ def docs_to_networkx(dataset, cats, window_size=2):
                 terms = extract_terms_from_sentence(line[1:],
                                                     stopwords=stopwords.words('english'),
                                                     lemmatize=True,
-                                                    stem=True)
+                                                    stem=True,
+                                                    only_N_V=True)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=label + '_' + str(dc))
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
@@ -129,7 +136,8 @@ def docs_to_networkx(dataset, cats, window_size=2):
                 terms = extract_terms_from_file(ds + cat + '/' + doc,
                                                 stopwords=stopwords.words('english'),
                                                 lemmatize=True,
-                                                stem=True)
+                                                stem=True,
+                                                only_N_V=True)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
