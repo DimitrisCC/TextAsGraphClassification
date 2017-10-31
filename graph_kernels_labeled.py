@@ -63,7 +63,7 @@ def sp_kernel(g1, g2=None):
 
 def graphlet_kernel(g1, g2=None):
     with Timer("Graphlet Kernel"):
-        if g2 is not None:
+        if g2 != None:
             graphs = []
             for g in g1:
                 graphs.append(g)
@@ -72,55 +72,53 @@ def graphlet_kernel(g1, g2=None):
         else:
             graphs = g1
 
-        labels = {}
+        N = len(graphs)
 
-        for G in graphs:
-            for node in G.nodes():
-                if G.node[node]["label"] not in labels:
-                    labels[G.node[node]["label"]] = len(labels)
-
-        L = len(labels)
-        B = 2 * pow(L, 3)
-
-        phi = lil_matrix((len(graphs), B))
-
+        graphlet_counts = []
         graphlets = {}
 
         ind = 0
-        for G in graphs:
-            for node1 in G.nodes():
-                for node2 in G.neighbors(node1):
-                    for node3 in G.neighbors(node2):
+        for i in range(len(graphs)):
+            d = {}
+            for node1 in graphs[i].nodes():
+                for node2 in graphs[i].neighbors(node1):
+                    for node3 in graphs[i].neighbors(node2):
                         if node1 != node3:
-                            if node3 not in G.neighbors(node1):
-                                graphlet = (
-                                1, min(G.node[node1]['label'], G.node[node3]['label']), G.node[node2]['label'],
-                                max(G.node[node1]['label'], G.node[node3]['label']))
-                                increment = 1.0 / 2.0
+                            if node3 not in graphs[i].neighbors(node1):
+                                graphlet = (1, min(graphs[i].node[node1]['label'], graphs[i].node[node3]['label']),
+                                            graphs[i].node[node2]['label'],
+                                            max(graphs[i].node[node1]['label'], graphs[i].node[node3]['label']))
+                                if graphlet not in graphlets:
+                                    graphlets[graphlet] = len(graphlets)
+                                if graphlets[graphlet] in d:
+                                    d[graphlets[graphlet]] += 1.0 / 2.0
+                                else:
+                                    d[graphlets[graphlet]] = 1.0 / 2.0
                             else:
-                                labs = sorted([G.node[node1]['label'], G.node[node2]['label'], G.node[node3]['label']])
+                                labs = sorted([graphs[i].node[node1]['label'], graphs[i].node[node2]['label'],
+                                               graphs[i].node[node3]['label']])
                                 graphlet = (2, labs[0], labs[1], labs[2])
-                                increment = 1.0 / 6.0
+                                if graphlet not in graphlets:
+                                    graphlets[graphlet] = len(graphlets)
+                                if graphlets[graphlet] in d:
+                                    d[graphlets[graphlet]] += 1.0 / 6.0
+                                else:
+                                    d[graphlets[graphlet]] = 1.0 / 6.0
 
-                            if graphlet not in graphlets:
-                                graphlets[graphlet] = len(graphlets)
+            graphlet_counts.append(d)
 
-                            phi[ind, graphlets[graphlet]] += increment
+        phi = lil_matrix((N, len(graphlets)))
+        for i in range(len(graphs)):
+            for graphlet in graphlet_counts[i]:
+                phi[i, graphlet] = graphlet_counts[i][graphlet]
 
-            ind += 1
-
-        # phid = phi.todense()
-
-        if g2 is not None:
-            phi1 = phi[:len(g1), :]
-            phi2 = phi[len(g1):, :]
-            phi2 = phi2.T
-            K = np.dot(phi1, phi2)
+        if g2 != None:
+            K = np.dot(phi[:len(g1), :], phi[len(g1):, :].T)
         else:
             K = np.dot(phi, phi.T)
 
-            # K = np.asarray(K)
-    return K
+        K = np.asarray(K.todense())
+        return K
 
 
 # Compute Weisfeiler-Lehman subtree kernel

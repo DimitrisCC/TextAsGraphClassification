@@ -93,8 +93,10 @@ def neighbors_community(G):
     return communities
 
 
-def neighbors2_community(G, remove_duplicates=True):
+def neighbors2_community(G, remove_duplicates=True, use_kcore=False):
     communities = set()
+    if use_kcore:
+        G = nx.k_core(G, 2)
     for v in G.nodes():
         neighs = G.neighbors(v)
         community = []

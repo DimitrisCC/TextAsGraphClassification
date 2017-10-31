@@ -9,13 +9,13 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 import pprintpp as pp
 
-tags = ['NN', 'NNP', 'NNS', 'NNPS', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+tags = ['NN', 'NNP', 'NNS', 'NNPS', 'JJ', 'JJS', 'JJR']
 
 
-def clean_terms(terms, stopwords=None, lemmatize=None, stem=None, only_N_V=None):
+def clean_terms(terms, stopwords=None, lemmatize=None, stem=None, only_N_J=None):
     if stopwords is not None:
         terms = [t for t in terms if t not in stopwords]
-    if only_N_V is not None:  # include only nouns and verbs
+    if only_N_J is not None:  # include only nouns and verbs
         tagged = nltk.pos_tag(terms)
         terms = [t for t, pos in tagged if pos in tags]
     if lemmatize is not None:
@@ -123,7 +123,7 @@ def docs_to_networkx(dataset, cats, window_size=2):
                                                     stopwords=stopwords.words('english'),
                                                     lemmatize=True,
                                                     stem=True,
-                                                    only_N_V=True)
+                                                    only_N_J=True)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=label + '_' + str(dc))
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
@@ -137,7 +137,7 @@ def docs_to_networkx(dataset, cats, window_size=2):
                                                 stopwords=stopwords.words('english'),
                                                 lemmatize=True,
                                                 stem=True,
-                                                only_N_V=True)
+                                                only_N_J=True)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
