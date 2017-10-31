@@ -87,23 +87,30 @@ def networkx_to_igraph(G):
 def neighbors_community(G):
     communities = []
     for v in G.nodes():
-        communities.append(G.neighbors(v))
+        community = G.neighbors(v)
+        community.append(v)
+        communities.append(community)
     return communities
 
 
-def neighbors2_community(G):
-    communities = []
+def neighbors2_community(G, remove_duplicates=True):
+    communities = set()
     for v in G.nodes():
         neighs = G.neighbors(v)
-        communities.append(v)
+        community = []
         for n in neighs:
-            communities.append(n)
+            community.append(n)
+            neighs2 = G.neighbors(n)
+            community.extend(neighs2)
+        if remove_duplicates:
+            community = list(set(community))
+        communities.add(tuple(community))
 
+    communities = list(map(list, communities))  # Convert tuples back into lists
     return communities
 
 
 def community_detection(G_networkx, community_detection_method):
-    G, reverse_mapping = networkx_to_igraph(G_networkx)
 
     if community_detection_method == "neighbors":
         communities = neighbors_community(G_networkx)
@@ -111,6 +118,9 @@ def community_detection(G_networkx, community_detection_method):
     if community_detection_method == "neighbors2":
         communities = neighbors2_community(G_networkx)
         return communities
+
+    G, reverse_mapping = networkx_to_igraph(G_networkx)
+
     if community_detection_method == "eigenvector":
         c = G.community_leading_eigenvector()
     elif community_detection_method == "infomap":
@@ -202,7 +212,7 @@ def compute_nystroem(ds_name, use_node_labels, embedding_dim, community_detectio
     for idx, k in enumerate(kernels):
         model = Nystroem(k, n_components=embedding_dim)
         model.fit(communities)
-        print(len(communities))
+        print(str(len(communities)) + " communities")
         Q_t = model.transform(communities)
         Q_t = np.vstack([np.zeros(embedding_dim), Q_t])
         Q.append(Q_t)
