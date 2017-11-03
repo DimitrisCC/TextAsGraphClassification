@@ -63,7 +63,7 @@ def sp_kernel(g1, g2=None):
 
 def graphlet_kernel(g1, g2=None):
     with Timer("Graphlet Kernel"):
-        if g2 != None:
+        if g2 is not None:
             graphs = []
             for g in g1:
                 graphs.append(g)
@@ -112,7 +112,7 @@ def graphlet_kernel(g1, g2=None):
             for graphlet in graphlet_counts[i]:
                 phi[i, graphlet] = graphlet_counts[i][graphlet]
 
-        if g2 != None:
+        if g2 is not None:
             K = np.dot(phi[:len(g1), :], phi[len(g1):, :].T)
         else:
             K = np.dot(phi, phi.T)

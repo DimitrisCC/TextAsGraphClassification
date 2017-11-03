@@ -27,7 +27,7 @@ def clean_terms(terms, stopwords=None, lemmatize=None, stem=None, only_N_J=None)
     return terms
 
 
-def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=None, only_N_V=None):
+def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=None, only_N_J=None):
     with open(file_location, 'r', encoding='iso-8859-1') as doc:
         terms = []
         for line in doc:
@@ -37,12 +37,12 @@ def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=
         #                                   .read()
         #                                   .replace('\n', '')
         #                                   .lower())
-        return clean_terms(terms, stopwords, lemmatize, stem, only_N_V)
+        return clean_terms(terms, stopwords, lemmatize, stem, only_N_J)
 
 
-def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None, only_N_V=None):
+def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None, only_N_J=None):
     terms = re.compile('\w+').findall(sentence.lower())
-    return clean_terms(terms, stopwords, lemmatize, stem, only_N_V)
+    return clean_terms(terms, stopwords, lemmatize, stem, only_N_J)
 
 
 def terms_to_graph(terms, w):  # terms=list w=window size

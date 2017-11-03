@@ -76,6 +76,46 @@ def load_data(ds_name, use_node_labels, data_type='text'):
     return Gs, labels
 
 
+def generate_synthetic():
+    import random
+    max_nodes = 200
+    min_nodes = 100
+    community_num_nodes = 10
+    graphs = []
+    labels = []
+    com_1 = nx.caveman_graph(1, community_num_nodes)
+    com_2 = nx.star_graph(community_num_nodes)
+
+    for i in range(500):
+        num_nodes = random.randint(min_nodes, max_nodes)
+        # graph= nx.random_regular_graph(4, num_nodes)
+        # graph=nx.powerlaw_cluster_graph(num_nodes, 2, 0.1)
+        # graph=nx.barabasi_albert_graph(num_nodes,5)
+        graph = nx.fast_gnp_random_graph(num_nodes, 0.1)
+        # graph= nx.compose(graph, com_1)
+        graph = nx.disjoint_union(graph, com_1)
+        for i in range(num_nodes, graph.number_of_nodes()):
+            for j in range(num_nodes):
+                if random.random() > 0.9:
+                    graph.add_edge(graph.nodes()[i], graph.nodes()[j])
+        graphs.append(graph)
+        labels.append(1)
+        num_nodes = random.randint(min_nodes, max_nodes)
+        # graph = nx.random_regular_graph(4, num_nodes)
+        graph = nx.fast_gnp_random_graph(num_nodes, 0.1)
+        # graph=nx.powerlaw_cluster_graph(num_nodes, 2, 0.1)
+        # graph = nx.barabasi_albert_graph(num_nodes, 5)
+        # graph = nx.compose(graph, com_2)
+        for i in range(num_nodes, graph.number_of_nodes()):
+            for j in range(num_nodes):
+                if random.random() > 0.9:
+                    graph.add_edge(graph.nodes[i], graph.nodes[j])
+        graphs.append(graph)
+        labels.append(0)
+
+    return graphs, labels
+
+
 def networkx_to_igraph(G):
     mapping = dict(zip(G.nodes(), range(G.number_of_nodes())))
     reverse_mapping = dict(zip(range(G.number_of_nodes()), G.nodes()))
@@ -94,10 +134,18 @@ def neighbors_community(G):
 
 
 def neighbors2_community(G, remove_duplicates=True, use_kcore=False):
-    communities = set()
+    Gc = None
     if use_kcore:
-        G = nx.k_core(G, 2)
-    for v in G.nodes():
+        Gc = G.copy()
+        Gc.remove_edges_from(Gc.selfloop_edges())
+        Gc = nx.k_core(Gc, 3)
+        # Gc = [cl for cl in nx.find_cliques(G)]
+    else:
+        Gc = G
+
+    communities = set()
+
+    for v in Gc.nodes():
         neighs = G.neighbors(v)
         community = []
         for n in neighs:
@@ -113,7 +161,6 @@ def neighbors2_community(G, remove_duplicates=True, use_kcore=False):
 
 
 def community_detection(G_networkx, community_detection_method):
-
     if community_detection_method == "neighbors":
         communities = neighbors_community(G_networkx)
         return communities
@@ -159,8 +206,10 @@ def compute_communities(graphs, use_node_labels, community_detection_method):
     communities = []
     subgraphs = []
     counter = 0
+    coms = []
     for G in graphs:
         c = community_detection(G, community_detection_method)
+        coms.append(len(c))
         subgraph = []
         for i in range(len(c)):
             communities.append(G.subgraph(c[i]))
@@ -168,7 +217,23 @@ def compute_communities(graphs, use_node_labels, community_detection_method):
             counter += 1
 
         subgraphs.append(' '.join(str(s) for s in subgraph))
+
+    print("Average communities: ", np.mean(coms))
     return communities, subgraphs
+
+
+def compute_embeddings(ds_name, use_node_labels, community_detection_method, kernels):
+    graphs, labels = load_data(ds_name, use_node_labels)
+    communities, subgraphs = compute_communities(graphs, use_node_labels, community_detection_method)
+
+    Q = []
+    for idx, k in enumerate(kernels):
+        Q_t = k(communities, explicit=True)
+        dim = Q_t.shape[1]
+        Q_t = np.vstack([np.zeros(dim), Q_t])
+        Q.append(Q_t)
+
+    return Q, subgraphs, labels, Q_t.shape
 
 
 def compute_kernel(ds_name, use_node_labels, community_detection_method):
@@ -209,12 +274,20 @@ def compute_nystroem(ds_name, use_node_labels, embedding_dim, community_detectio
     # graphs, labels = generate_data(ds_name)
     end = time.time()
     time2 = end - start
+
     communities, subgraphs = compute_communities(graphs, use_node_labels, community_detection_method)
+
+    print("Total communities: ", len(communities))
+    lens = []
+    for community in communities:
+        lens.append(community.number_of_nodes())
+
+    print("Average size: ", np.mean(lens))
+
     Q = []
     for idx, k in enumerate(kernels):
         model = Nystroem(k, n_components=embedding_dim)
         model.fit(communities)
-        print(str(len(communities)) + " communities")
         Q_t = model.transform(communities)
         Q_t = np.vstack([np.zeros(embedding_dim), Q_t])
         Q.append(Q_t)
@@ -240,3 +313,47 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
             start_index = batch_num * batch_size
             end_index = min((batch_num + 1) * batch_size, data_size)
             yield shuffled_data[start_index:end_index]
+
+
+            # def create_train_test_loaders(Q, x_train, x_test, y_train, y_test, batch_size):
+            #     num_kernels = Q.shape[2]
+            #     max_document_length = x_train.shape[1]
+            #     dim = Q.shape[1]
+            #
+            #     my_x = []
+            #     for i in range(x_train.shape[0]):
+            #         temp = np.zeros((1, num_kernels, max_document_length, dim))
+            #         for j in range(num_kernels):
+            #             for k in range(x_train.shape[1]):
+            #                 temp[0, j, k, :] = Q[x_train[i, k], :, j].squeeze()
+            #         my_x.append(temp)
+            #
+            #     if torch.cuda.is_available():
+            #         tensor_x = torch.stack([torch.cuda.FloatTensor(i) for i in my_x])  # transform to torch tensors
+            #         tensor_y = torch.cuda.LongTensor(y_train.tolist())
+            #     else:
+            #         tensor_x = torch.stack([torch.Tensor(i) for i in my_x])  # transform to torch tensors
+            #         tensor_y = torch.from_numpy(np.asarray(y_train, dtype=np.int64))
+            #
+            #     train_dataset = utils.TensorDataset(tensor_x, tensor_y)
+            #     train_loader = utils.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+            #
+            #     my_x = []
+            #     for i in range(x_test.shape[0]):
+            #         temp = np.zeros((1, num_kernels, max_document_length, dim))
+            #         for j in range(num_kernels):
+            #             for k in range(x_test.shape[1]):
+            #                 temp[0, j, k, :] = Q[x_test[i, k], :, j].squeeze()
+            #         my_x.append(temp)
+            #
+            #     if torch.cuda.is_available():
+            #         tensor_x = torch.stack([torch.cuda.FloatTensor(i) for i in my_x])  # transform to torch tensors
+            #         tensor_y = torch.cuda.LongTensor(y_test.tolist())
+            #     else:
+            #         tensor_x = torch.stack([torch.Tensor(i) for i in my_x])  # transform to torch tensors
+            #         tensor_y = torch.from_numpy(np.asarray(y_test, dtype=np.int64))
+            #
+            #     test_dataset = utils.TensorDataset(tensor_x, tensor_y)
+            #     test_loader = utils.DataLoader(test_dataset, batch_size=1, shuffle=False)
+            #
+            #     return train_loader, test_loader
