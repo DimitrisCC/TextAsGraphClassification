@@ -141,7 +141,7 @@ def docs_to_networkx(dataset, cats, window_size=2):
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
-                nx.set_node_attributes(G, 'label', dict(zip(G.nodes(), G.nodes())))
+                nx.set_node_attributes(G, name='label', values=dict(zip(G.nodes(), G.nodes())))
                 Gs.append(G)
                 labels.append(cats[cat])
     return Gs, labels
