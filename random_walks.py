@@ -1,25 +1,8 @@
+from itertools import product
 import networkx as nx
-import matplotlib.pyplot as plt
 import warnings
 
 warnings.filterwarnings("ignore")
-from itertools import product
-
-G = nx.complete_graph(3)
-nx.set_node_attributes(G, name='label', values=G.degree())
-H = nx.balanced_tree(2, 2)
-nx.set_node_attributes(H, name='label', values=H.degree())
-
-Gp = nx.cartesian_product(G, H)
-
-nx.draw(G, with_labels=True)
-plt.show()
-nx.draw(H, with_labels=True)
-plt.show()
-
-
-# nx.draw(Gp, with_labels=True)
-# plt.show()
 
 
 def _dict_product(d1, d2):
@@ -51,18 +34,3 @@ def remove_lone_nodes(G):
     degree = G.degree()
     lone_nodes = [u for u in degree if degree[u] == 0]
     return G.remove_nodes_from(lone_nodes)
-
-
-GH = nx.Graph()
-GH.add_nodes_from(_node_product(G, H, label_threshold=10))
-GH.add_edges_from(_edges_of_product(G, H))
-nx.draw(GH, with_labels=True)
-plt.show()
-remove_lone_nodes(GH)
-print(nx.get_node_attributes(GH, 'label'))
-nx.draw(GH, with_labels=True)
-plt.show()
-
-
-def random_walk(G, steps):
-    pass
