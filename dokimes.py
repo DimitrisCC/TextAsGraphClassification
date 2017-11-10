@@ -12,10 +12,11 @@ nx.set_node_attributes(H, name='label', values=H.degree())
 
 Gp = nx.cartesian_product(G, H)
 
-nx.draw(G, with_labels=True)
-plt.show()
-nx.draw(H, with_labels=True)
-plt.show()
+
+# nx.draw(G, with_labels=True)
+# plt.show()
+# nx.draw(H, with_labels=True)
+# plt.show()
 
 
 # nx.draw(Gp, with_labels=True)
@@ -53,16 +54,22 @@ def remove_lone_nodes(G):
     return G.remove_nodes_from(lone_nodes)
 
 
+def random_walk(G, steps):
+    for node_attr in G.nodes(data=True):
+        node, attr = node_attr
+        for step in range(steps):
+            neighs = G.neighbors(node)
+
+
 GH = nx.Graph()
 GH.add_nodes_from(_node_product(G, H, label_threshold=10))
 GH.add_edges_from(_edges_of_product(G, H))
-nx.draw(GH, with_labels=True)
-plt.show()
+# nx.draw(GH, with_labels=True)
+# plt.show()
 remove_lone_nodes(GH)
 print(nx.get_node_attributes(GH, 'label'))
 nx.draw(GH, with_labels=True)
 plt.show()
 
-
-def random_walk(G, steps):
-    pass
+random_walk(GH, 2)
+print(nx.pagerank(GH))
