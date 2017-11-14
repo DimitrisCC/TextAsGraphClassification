@@ -7,7 +7,7 @@ import networkx as nx
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
-import pprintpp as pp
+from collections import Counter
 
 tags = ['NN', 'NNP', 'NNS', 'NNPS', 'JJ', 'JJS', 'JJR']
 
@@ -43,6 +43,11 @@ def extract_terms_from_file(file_location, stopwords=None, lemmatize=None, stem=
 def extract_terms_from_sentence(sentence, stopwords=None, lemmatize=None, stem=None, only_N_J=None):
     terms = re.compile('\w+').findall(sentence.lower())
     return clean_terms(terms, stopwords, lemmatize, stem, only_N_J)
+
+
+def vocabulary_creation(fname, vocab):
+    with open(fname + '/vocab.txt', 'w') as fvocab:
+        fvocab.write(vocab)
 
 
 def terms_to_graph(terms, w):  # terms=list w=window size
@@ -103,17 +108,21 @@ def graph_to_networkx(graph, name=None):
     return G
 
 
-def docs_to_networkx(dataset, cats, window_size=2):
+def docs_to_networkx(dataset, cats, window_size=2, vocabulary_creation=True):
     ds = './datasets/%s/' % dataset
     Gs = []
     labels = []
     type_ = 2
+    vocab_creation = vocabulary_creation
+    words = []  # for vocabulary
 
     for doc in os.listdir(ds):
         if 'train.txt' in doc:
             type_ = 1
 
     if type_ == 1:
+        if os.path.exists("ds/vocab.txt"):
+            vocab_creation = False
         with open(ds + '/train.txt', 'r', encoding='iso-8859-1') as doc:
             dc = 1
             for line in doc:
@@ -124,6 +133,8 @@ def docs_to_networkx(dataset, cats, window_size=2):
                                                     lemmatize=True,
                                                     stem=True,
                                                     only_N_J=True)
+                if vocab_creation:
+                    words.extend(terms)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=label + '_' + str(dc))
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
@@ -131,6 +142,8 @@ def docs_to_networkx(dataset, cats, window_size=2):
                 Gs.append(G)
                 dc += 1
     else:
+        if os.path.exists("ds/vocab.txt"):
+            vocab_creation = False
         for cat in cats.keys():
             for doc in os.listdir(ds + cat):
                 terms = extract_terms_from_file(ds + cat + '/' + doc,
@@ -138,12 +151,19 @@ def docs_to_networkx(dataset, cats, window_size=2):
                                                 lemmatize=True,
                                                 stem=True,
                                                 only_N_J=True)
+                if vocab_creation:
+                    words.extend(terms)
                 graph = terms_to_graph(terms, window_size)
                 G = graph_to_networkx(graph, name=cat + doc.split('.')[0])
                 # G = nx.convert_node_labels_to_integers(G, first_label=1, label_attribute='label')
                 nx.set_node_attributes(G, name='label', values=dict(zip(G.nodes(), G.nodes())))
                 Gs.append(G)
                 labels.append(cats[cat])
+
+    if vocab_creation:
+        vocab = dict(Counter(words))
+        create_vocabulary_file(fname, vocab)
+
     return Gs, labels
 
 

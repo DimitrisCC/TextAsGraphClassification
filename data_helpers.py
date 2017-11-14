@@ -9,6 +9,7 @@ import sys, pickle, logging
 import copy, time
 from nystroem import Nystroem
 import graph_of_words as gow
+from gensim.models import KeyedVectors
 
 np.random.seed(None)
 
@@ -76,44 +77,23 @@ def load_data(ds_name, use_node_labels, data_type='text'):
     return Gs, labels
 
 
-def generate_synthetic():
-    import random
-    max_nodes = 200
-    min_nodes = 100
-    community_num_nodes = 10
-    graphs = []
-    labels = []
-    com_1 = nx.caveman_graph(1, community_num_nodes)
-    com_2 = nx.star_graph(community_num_nodes)
+def load_embeddings(fname='embeddings/GoogleNews-vectors-negative300.bin.gz', fvocab=None, as_dict=True):
+    model = KeyedVectors.load_word2vec_format(fname=fname, fvocab=fvocab, binary=True)
+    if as_dict:
+        word_vecs = {}
+        for word in model.wv.vocab:
+            vec = model.wv[word]
+            word_vecs[word] = vec
+            return word_vecs
+    else:
+        return model
 
-    for i in range(500):
-        num_nodes = random.randint(min_nodes, max_nodes)
-        # graph= nx.random_regular_graph(4, num_nodes)
-        # graph=nx.powerlaw_cluster_graph(num_nodes, 2, 0.1)
-        # graph=nx.barabasi_albert_graph(num_nodes,5)
-        graph = nx.fast_gnp_random_graph(num_nodes, 0.1)
-        # graph= nx.compose(graph, com_1)
-        graph = nx.disjoint_union(graph, com_1)
-        for i in range(num_nodes, graph.number_of_nodes()):
-            for j in range(num_nodes):
-                if random.random() > 0.9:
-                    graph.add_edge(graph.nodes()[i], graph.nodes()[j])
-        graphs.append(graph)
-        labels.append(1)
-        num_nodes = random.randint(min_nodes, max_nodes)
-        # graph = nx.random_regular_graph(4, num_nodes)
-        graph = nx.fast_gnp_random_graph(num_nodes, 0.1)
-        # graph=nx.powerlaw_cluster_graph(num_nodes, 2, 0.1)
-        # graph = nx.barabasi_albert_graph(num_nodes, 5)
-        # graph = nx.compose(graph, com_2)
-        for i in range(num_nodes, graph.number_of_nodes()):
-            for j in range(num_nodes):
-                if random.random() > 0.9:
-                    graph.add_edge(graph.nodes[i], graph.nodes[j])
-        graphs.append(graph)
-        labels.append(0)
 
-    return graphs, labels
+def add_unknown_words(word_vecs, vocab, k=300):
+    # For words not existing in the pretrained dataset, create a separate word vector.
+    for word in vocab:
+        if word not in word_vecs:
+            word_vecs[word] = np.random.uniform(-0.25, 0.25, k)
 
 
 def networkx_to_igraph(G):

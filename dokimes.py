@@ -1,9 +1,41 @@
+from itertools import product
 import networkx as nx
 import matplotlib.pyplot as plt
 import warnings
+import numpy as np
+from gensim.models import KeyedVectors
+from sklearn.metrics.pairwise import cosine_similarity
 
 warnings.filterwarnings("ignore")
-from itertools import product
+
+
+def load_word2vec_model(fname='embeddings/GoogleNews-vectors-negative300.bin.gz', vocab=None):
+    model = KeyedVectors.load_word2vec_format(fname=fname, fvocab=vocab, binary=True)
+    return model
+
+
+def load_embeddings(fname, vocab):
+    # Reads word embeddings from disk.
+    word_vecs = {}
+    with open(fname, "rb") as f:
+        header = f.readline()
+        vocab_size, layer1_size = map(int, header.split())
+        binary_len = np.dtype('float32').itemsize * layer1_size
+        for line in range(vocab_size):
+            word = []
+            while True:
+                ch = f.read(1)
+                if ch == ' ':
+                    word = ''.join(word)
+                    break
+                if ch != '\n':
+                    word.append(ch)
+            if word in vocab:
+                word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')
+            else:
+                f.read(binary_len)
+    return word_vecs
+
 
 G = nx.complete_graph(3)
 nx.set_node_attributes(G, name='label', values=G.degree())
@@ -67,9 +99,24 @@ GH.add_edges_from(_edges_of_product(G, H))
 # nx.draw(GH, with_labels=True)
 # plt.show()
 remove_lone_nodes(GH)
+
+attrs = nx.get_node_attributes(GH, 'label')
+
+#
+attrs_ = attrs.copy()
+for k, v in attrs.items():
+    attrs_[k] = np.round(v + np.random.rand() * 10, 2)
+nx.set_node_attributes(GH, name='label', values=attrs_)
+#
 print(nx.get_node_attributes(GH, 'label'))
-nx.draw(GH, with_labels=True)
-plt.show()
 
 random_walk(GH, 2)
 print(nx.pagerank(GH))
+
+# nx.draw(GH, with_labels=True)
+# plt.show()
+
+model = load_word2vec_model(vocab='dokimh_vocab')
+model2 = load_word2vec_model(vocab='dokimh_vocab2')
+print(cosine_similarity(model['happy'], model2['happy']))
+print(cosine_similarity(model.wv['happy'], model2.wv['happy']))
