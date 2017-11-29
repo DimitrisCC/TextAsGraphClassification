@@ -5,16 +5,17 @@ import warnings
 import numpy as np
 from gensim.models import KeyedVectors
 from sklearn.metrics.pairwise import cosine_similarity
+from data_helpers import load_embeddings
 
 warnings.filterwarnings("ignore")
 
 
 def load_word2vec_model(fname='embeddings/GoogleNews-vectors-negative300.bin.gz', vocab=None):
     model = KeyedVectors.load_word2vec_format(fname=fname, fvocab=vocab, binary=True)
-    return model
+    return model.wv
 
 
-def load_embeddings(fname, vocab):
+def load_embeddings_(fname, vocab):
     # Reads word embeddings from disk.
     word_vecs = {}
     with open(fname, "rb") as f:
@@ -116,7 +117,9 @@ print(nx.pagerank(GH))
 # nx.draw(GH, with_labels=True)
 # plt.show()
 
-model = load_word2vec_model(vocab='dokimh_vocab')
-model2 = load_word2vec_model(vocab='dokimh_vocab2')
-print(cosine_similarity(model['happy'], model2['happy']))
-print(cosine_similarity(model.wv['happy'], model2.wv['happy']))
+# model = load_word2vec_model(vocab='dokimh_vocab')
+# model2 = load_word2vec_model(vocab='dokimh_vocab2')
+# print(cosine_similarity(model['happy'], model2['happy']))
+# print(cosine_similarity(model.wv['happy'], model2.wv['happy']))
+
+model = load_embeddings()
