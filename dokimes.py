@@ -102,17 +102,14 @@ def random_walk(G, steps):
         val = walk(G, node=neighs[choice], prev_node=node, steps=steps)
         return neighs_attrs[choice] + val
 
-    n = 0
+    kernel_value = 0
     for node_attr in G.nodes(data=True):
         node, attr = node_attr
         num_nodes = G.number_of_nodes(), G.number_of_nodes()
         kernel = np.array((num_nodes, num_nodes))
-        value = 0
         for step in range(steps):
             neighs = G.neighbors(node)
-            value += (step / steps) * walk(G, node=neighs[0], prev_node=None, steps=steps)
-            # kernel[n, ]
-
+            kernel_value += (step / steps) * walk(G, node=neighs[0], prev_node=None, steps=steps)
 
 
 GH = nx.Graph()
