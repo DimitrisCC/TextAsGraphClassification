@@ -122,4 +122,3 @@ print(nx.pagerank(GH))
 # print(cosine_similarity(model['happy'], model2['happy']))
 # print(cosine_similarity(model.wv['happy'], model2.wv['happy']))
 
-model = load_embeddings()

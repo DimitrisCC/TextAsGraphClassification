@@ -10,6 +10,7 @@ import copy, time
 from nystroem import Nystroem
 import graph_of_words as gow
 from gensim.models import KeyedVectors
+import db
 
 np.random.seed(None)
 
@@ -77,14 +78,16 @@ def load_data(ds_name, use_node_labels, data_type='text'):
     return Gs, labels
 
 
-def load_embeddings(fname='embeddings/GoogleNews-vectors-negative300.bin.gz', fvocab=None, as_dict=True):
+def load_embeddings(fname='embeddings/GoogleNews-vectors-negative300.bin.gz', fvocab=None, as_dict=True, use_db=True):
+    if use_db:
+        return db.select()
     model = KeyedVectors.load_word2vec_format(fname=fname, fvocab=fvocab, binary=True)
     if as_dict:
         word_vecs = {}
         for word in model.wv.vocab:
             vec = model.wv[word]
             word_vecs[word] = vec
-            return word_vecs
+        return word_vecs
     else:
         return model
 
