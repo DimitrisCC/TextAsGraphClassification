@@ -3,9 +3,10 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import warnings
 import numpy as np
+import random
 from gensim.models import KeyedVectors
 from sklearn.metrics.pairwise import cosine_similarity
-from data_helpers import load_embeddings
+from data_helpers import load_embeddings_from_db
 
 warnings.filterwarnings("ignore")
 
@@ -88,10 +89,30 @@ def remove_lone_nodes(G):
 
 
 def random_walk(G, steps):
+    def walk(G, node, prev_node, steps):
+        if steps == 0:
+            return 0
+        steps -= 1
+        neighs = G.neighbors(node)
+        neighs_attrs = nx.get_node_attributes(G.subgraph(neighs), 'label')
+        neighs_attrs = list(neighs_attrs.values())
+        if prev_node is not None:
+            neighs_attrs[neighs.index(prev_node)] = 0  # we don't want to return to the previous node
+        choice = np.random.choice(a=len(neighs), p=neighs_attrs / np.sum(neighs_attrs))
+        val = walk(G, node=neighs[choice], prev_node=node, steps=steps)
+        return neighs_attrs[choice] + val
+
+    n = 0
     for node_attr in G.nodes(data=True):
         node, attr = node_attr
+        num_nodes = G.number_of_nodes(), G.number_of_nodes()
+        kernel = np.array((num_nodes, num_nodes))
+        value = 0
         for step in range(steps):
             neighs = G.neighbors(node)
+            value += (step / steps) * walk(G, node=neighs[0], prev_node=None, steps=steps)
+            # kernel[n, ]
+
 
 
 GH = nx.Graph()
@@ -111,9 +132,14 @@ nx.set_node_attributes(GH, name='label', values=attrs_)
 #
 print(nx.get_node_attributes(GH, 'label'))
 
-random_walk(GH, 2)
+#random_walk(GH, 2)
 print(nx.pagerank(GH))
 
+nx.draw(GH, with_labels=True)
+plt.show()
+random_walk(GH, 3)
+# a = load_embeddings_from_db(vocab=["happy", "priest", "ghost"])
+print()
 # nx.draw(GH, with_labels=True)
 # plt.show()
 

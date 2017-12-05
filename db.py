@@ -27,13 +27,13 @@ def insert(model):
         cur.executemany("INSERT OR IGNORE INTO Embeddings VALUES(?, ?)", model)
 
 
-def select(word=None):
+def select(words=None):
     global con
     with con:
         cur = con.cursor()
         query = "SELECT word, embedding FROM Embeddings"
-        if word is not None:
-            query += " WHERE word" % word
+        if words is not None:
+            query += " WHERE word IN %s " % str(tuple(words))
         cur.execute(query)
         data = cur.fetchall()
         model = {}
@@ -50,6 +50,7 @@ def load_word2vec_model(fname='embeddings/GoogleNews-vectors-negative300.bin.gz'
 def main():
     from data_helpers import load_embeddings
     model = load_embeddings(fvocab=None, use_db=False, as_dict=False)
+    print("model")
     strmodel = []
     for word in model.wv.vocab:
         emb = ",".join(map(str, model.wv[word]))
