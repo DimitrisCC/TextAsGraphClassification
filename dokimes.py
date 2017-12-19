@@ -88,6 +88,29 @@ def remove_lone_nodes(G):
     return G.remove_nodes_from(lone_nodes)
 
 
+def product_graph(G, H, label_threshold=10):
+    GH = nx.Graph()
+    GH.add_nodes_from(_node_product(G, H, label_threshold=label_threshold))
+    GH.add_edges_from(_edges_of_product(G, H))
+    remove_lone_nodes(GH)
+    return GH
+
+
+def random_walk_kernel(graphs, steps=4, label_threshold=10):
+    N = len(graphs)
+    kernel = np.array((N, N))
+    for i in range(N):
+        for j in range(N):
+            if i != j:
+                GH = product_graph(graphs[i], graphs[j], label_threshold=label_threshold)
+                kernel_value = random_walk(GH, steps)
+                kernel[i, j] = kernel_value
+            else:
+                kernel[i, j] = 1
+    return kernel
+
+
+# Random walk on a product graph G
 def random_walk(G, steps):
     def walk(G, node, prev_node, steps):
         if steps == 0:
@@ -106,10 +129,11 @@ def random_walk(G, steps):
     for node_attr in G.nodes(data=True):
         node, attr = node_attr
         num_nodes = G.number_of_nodes(), G.number_of_nodes()
-        kernel = np.array((num_nodes, num_nodes))
         for step in range(steps):
             neighs = G.neighbors(node)
             kernel_value += (step / steps) * walk(G, node=neighs[0], prev_node=None, steps=steps)
+    return kernel_value
+
 
 
 GH = nx.Graph()
@@ -129,7 +153,7 @@ nx.set_node_attributes(GH, name='label', values=attrs_)
 #
 print(nx.get_node_attributes(GH, 'label'))
 
-#random_walk(GH, 2)
+# random_walk(GH, 2)
 print(nx.pagerank(GH))
 
 nx.draw(GH, with_labels=True)
@@ -144,4 +168,3 @@ print()
 # model2 = load_word2vec_model(vocab='dokimh_vocab2')
 # print(cosine_similarity(model['happy'], model2['happy']))
 # print(cosine_similarity(model.wv['happy'], model2.wv['happy']))
-
